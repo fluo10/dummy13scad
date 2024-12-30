@@ -4,7 +4,7 @@ module edge_profile(bevel_size) {
     polygon([[eps, eps], [-bevel_size, eps], [eps, -bevel_size]]);
 }
 
-module linear_edge(length, bevel_size, center=false){
+module linear_edge(length, bevel_size=0.5, center=false){
     translate([0, 0, -eps]) linear_extrude(length+eps*2, center=center) edge_profile(bevel_size);
 }
 

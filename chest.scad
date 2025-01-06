@@ -1,13 +1,19 @@
 include <modules/config.scad>;
 use <modules/common.scad>;
 
-color("red") {
-    translate([-20, -6.5,0]) import("references/frame-chest.stl");
-    translate([20, -6.5,0]) import("references/frame-chest-female.stl");
-}
+//color("red") {
+//    translate([-20, -6.5,0]) import("references/frame-chest.stl");
+//    translate([20, -6.5,0]) import("references/frame-chest-female.stl");
+//}
 
 module chest(shoulder_width=12, neck_height=13.5, ) {
     shoulder_height=7.5;
+    stomach_joint_angle = 112.5;
+    stomach_joint_outer_radius = 4.5;
+    stomach_joint_inner_radius = 3;
+    neck_joint_angle = 112.5;
+    neck_joint_outer_radius = 4.5;
+    neck_joint_inner_radius = 3;
     module right_shoulder() {
         module shoulder_edge() {
             translate([0.9, 0, 1.5]) rotate([90, 0, 0]) linear_edge(4, center=true);
@@ -28,9 +34,18 @@ module chest(shoulder_width=12, neck_height=13.5, ) {
         }
     }
     module base() {
+
         module base_profile() {
             module mouth(radius, angle) {
                 polygon([[0, 0], [-tan(angle/2) * (radius+eps), radius+eps], [tan(angle/2)* (radius+eps), radius+eps]]);
+            }
+            module side_slit() {
+                side_slit_radius=0.2;
+                side_slit_depth=3.5;
+                translate([3.2, -3.2, 0]) {
+                    circle(side_slit_radius);
+                    translate([side_slit_depth/2, 0, 0]) square([side_slit_depth, side_slit_radius*2], center=true);
+                }
             }
                 
             ball_joint_angle=120;
@@ -52,14 +67,57 @@ module chest(shoulder_width=12, neck_height=13.5, ) {
 
                 }
                 square([3,3.2], center=true);
+                side_slit();
+                mirror([1, 0, 0]) side_slit();
             }
         }
         linear_extrude(5, center=true) base_profile();
     }
     
     module top_right_bevel() {
+        translate([1.5, 1.6, 2.5]) rotate([0, 0, 180]) concaved_corner(0.5);
+        translate([1.5, -1.6, 2.5]) rotate([0, 0, 90]) concaved_corner(0.5);
+        translate([1.5, 0, 2.5]) rotate([90, 0, 180]) linear_edge(length=3.2, bevel_size=0.5, center=true);
+        translate([4.5, 0.5, 2.5]) rotate([0, 0, 270]) concaved_corner(0.5);
+        translate([4.5, 0.5, 2.5]) rotate([0, 270, 180]) linear_edge(length=shoulder_width/2, bevel_size=0.5, center=false);
+        translate([4.5, 0.5, 2.5]) rotate([90, 0, 0]) linear_edge(length=7, bevel_size=0.5, center=false);
+        translate([shoulder_width/2+2, 2, 2.5]) rotate([90, 0, 0]) linear_edge(length=3.2, bevel_size=0.5, center=true);
+        translate([shoulder_width/2+2, 3.5, 2.5]) {
+            corner(bevel_size=0.5);
+            rotate([180, 0, 90]) linear_edge(length=2.5, bevel_size=0.5, center=false);
+        }
+        translate([shoulder_width/2+2, 0.5, 2.5]) {
+            rotate([0, 0, 270]) corner(bevel_size=0.5);
+            rotate([180, 0, 0]) linear_edge(length=2.5, bevel_size=0.5, center=false);
+        }
+        translate([0, neck_height, 2.5]) {
+            rotate([90, 0, 180-neck_joint_angle/2]) linear_edge(length=neck_joint_outer_radius, bevel_size=0.5, center=false); 
+            translate([neck_joint_outer_radius*sin(neck_joint_angle/2), neck_joint_outer_radius*cos(neck_joint_angle/2), 0]) {
+                rotate([180, 0, 180-neck_joint_angle/2]) linear_edge(length=2.5, bevel_size=0.5, center=false);
+                rotate([0, 0, 90-neck_joint_angle/2]) corner(bevel_size=0.5);       
+            }
+        }
+        translate([0, -6.5, 2.5]) {
+            rotate([90, 0, -neck_joint_angle/2]) linear_edge(length=neck_joint_outer_radius, bevel_size=0.5, center=false); 
+            translate([neck_joint_outer_radius*sin(neck_joint_angle/2),- neck_joint_outer_radius*cos(neck_joint_angle/2), 0]) {
+                rotate([180, 0, 270 + neck_joint_angle/2]) linear_edge(length=2.5, bevel_size=0.5, center=false);
+                rotate([0, 0,  180+ neck_joint_angle/2]) corner(bevel_size=0.5);       
+            }
+        }
+
     }
     module top_bevel() {
+        translate([0, 1.6, 2.5]) rotate([90, 0, 270]) linear_edge(length=3, bevel_size=0.5, center=true);
+        translate([0, -1.6, 2.5]) rotate([90, 0, 90]) linear_edge(length=3, bevel_size=0.5, center=true);
+        translate([0, 3.5, 2.5]) rotate([90, 0, 90]) linear_edge(length=shoulder_width+4, bevel_size=0.5, center=true);
+        translate([0, -6.5, 2.5]) {
+            rotate([0, 0, 180]) rotate_edge(radius=4.5, bevel_size=0.5, angle=180);
+            rotate_edge(radius=2, bevel_size=0.5, concave=true);
+        }
+        translate([0, neck_height, 2.5]) {
+            rotate([0, 0, 180]) rotate_edge(radius=4.5, bevel_size=0.5);
+            rotate_edge(radius=2, bevel_size=0.5, concave=true);
+        }
     }
     
     difference() {

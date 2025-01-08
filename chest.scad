@@ -1,5 +1,6 @@
 include <modules/config.scad>;
 use <modules/common.scad>;
+use <modules/ball_joint.scad>;
 
 //color("red") {
 //    translate([-20, -6.5,0]) import("references/frame-chest.stl");
@@ -52,14 +53,9 @@ module chest(shoulder_width=12, neck_height=13.5, ) {
             ball_joint_outer_radius=4.5;
             difference(){
                 union() {
-                    translate([0, neck_height, 0]) circle(4.5);
                     translate([0, 2, 0]) square([shoulder_width+4, 3], center=true);
                     translate([0, -2, 0]) square(9, center=true);
                     translate([0, -6.5, 0]) circle(4.5);
-                }
-                translate([0, neck_height, 0]) {
-                    circle(2.25);
-                    mouth(ball_joint_outer_radius, angle=112.5);
                 }
                 translate([0, -6.5, 0]) {
                     circle(2.15);
@@ -90,13 +86,6 @@ module chest(shoulder_width=12, neck_height=13.5, ) {
             rotate([0, 0, 270]) corner(bevel_size=0.5);
             rotate([180, 0, 0]) linear_edge(length=2.5, bevel_size=0.5, center=false);
         }
-        translate([0, neck_height, 2.5]) {
-            rotate([90, 0, 180-neck_joint_angle/2]) linear_edge(length=neck_joint_outer_radius, bevel_size=0.5, center=false); 
-            translate([neck_joint_outer_radius*sin(neck_joint_angle/2), neck_joint_outer_radius*cos(neck_joint_angle/2), 0]) {
-                rotate([180, 0, 180-neck_joint_angle/2]) linear_edge(length=2.5, bevel_size=0.5, center=false);
-                rotate([0, 0, 90-neck_joint_angle/2]) corner(bevel_size=0.5);       
-            }
-        }
         translate([0, -6.5, 2.5]) {
             rotate([90, 0, -neck_joint_angle/2]) linear_edge(length=neck_joint_outer_radius, bevel_size=0.5, center=false); 
             translate([neck_joint_outer_radius*sin(neck_joint_angle/2),- neck_joint_outer_radius*cos(neck_joint_angle/2), 0]) {
@@ -114,10 +103,6 @@ module chest(shoulder_width=12, neck_height=13.5, ) {
             rotate([0, 0, 180]) rotate_edge(radius=4.5, bevel_size=0.5, angle=180);
             rotate_edge(radius=2, bevel_size=0.5, concave=true);
         }
-        translate([0, neck_height, 2.5]) {
-            rotate([0, 0, 180]) rotate_edge(radius=4.5, bevel_size=0.5);
-            rotate_edge(radius=2, bevel_size=0.5, concave=true);
-        }
     }
     
     difference() {
@@ -125,7 +110,7 @@ module chest(shoulder_width=12, neck_height=13.5, ) {
             base();
             right_shoulder();
             mirror([1, 0, 0]) right_shoulder();
-            
+            translate([0, neck_height, 0]) ball_joint_stag_socket(outer_radius=4.5, ball_radius=2.85, inner_radius=2.2, angle=112.5, thickness=5);
         }
         translate([0, neck_height, 0]) sphere(2.9);
         translate([0, -6.5, 0]) sphere(2.85);
